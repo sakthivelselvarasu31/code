@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMALL IMAGES GALLERY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        p.subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 300px;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-item .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            opacity: 0;
+        }
+
+        .gallery-item:hover .overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .overlay h3 {
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        .overlay p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                grid-gap: 15px;
+            }
+            
+            .gallery-item {
+                height: 250px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 20px 0;
+            }
+        }
+
+        .search-container {
+            margin: 0 auto 20px;
+            max-width: 500px;
+            display: flex;
+        }
+        
+        #search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+        
+        #search-button {
+            padding: 10px 20px;
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #search-button:hover {
+            background-color: #2d3748;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(45, 55, 72, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 100%;
+            max-height: 500%;
+            object-fit: contain;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        .like-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .like-button i {
+            font-size: 20px;
+            color: #777;
+            transition: color 0.3s ease;
+        }
+        
+        .like-button.active {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .like-button.active i {
+            color: #e53e3e;
+        }
+
+        .download-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .download-button i {
+            font-size: 18px;
+            color: #2d3748;
+            transition: color 0.3s ease;
+        }
+        
+        .download-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+        
+        .download-button:hover i {
+            color: #4299e1;
+        }
+
+        .category-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 auto 30px;
+            max-width: 800px;
+        }
+        
+        .category-btn {
+            padding: 8px 16px;
+            background-color: #e2e8f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn:hover {
+            background-color: #cbd5e0;
+        }
+        
+        .category-btn.active {
+            background-color: #4a5568;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Small Image Gallery</h1>
+        <p class="subtitle">A collection of beautiful images showcasing nature, architecture, and more</p>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search images">
+            <button id="search-button">Search</button>
+        </div>
+        <div class="category-filters">
+            <button class="category-btn" data-category="all">All</button>
+            <button class="category-btn" data-category="home">Home</button>
+            <button class="category-btn" data-category="hills">Hills</button>
+            <button class="category-btn" data-category="chhota bheem">Chhota Bheem</button>
+            <button class="category-btn" data-category="spider">Spider</button>
+        </div>
+    </header>
+
+    <div class="gallery">
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="spider3.jpg" alt="Nature image">
+            <div class="overlay">
+                <h3>SPIDER</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="spider1.png" alt="Architecture image">
+            <div class="overlay">
+                <h3>SPIDER</h3>
+            
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="spider2.jpg" alt="Travel image">
+            <div class="overlay">
+                <h3>SPIDER</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="houses1.jpeg" alt="Food image">
+            <div class="overlay">
+                <h3>HOME</h3>
+                
+            </div>
+        </div>
+        
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="houses2.jpeg" alt="Animals image">
+            <div class="overlay">
+                <h3>HOME</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="houses3.webp" alt="Technology image">
+            <div class="overlay">
+                <h3>HOME</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="hill1.jpg" alt="Technology image">
+            <div class="overlay">
+                <h3>HILLS</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="hill2.jpg" alt="Technology image">
+            <div class="overlay">
+                <h3>HILLS</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="hills3.jpg" alt="Technology image">
+            <div class="overlay">
+                <h3>HILLS</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="BHEEM5.png" alt="Art image">
+            <div class="overlay">
+                <h3>Chhota Bheem</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="bheem2.jpeg" alt="Art image">
+            <div class="overlay">
+                <h3>Chhota Bheem</h3>
+                
+            </div>
+        </div>
+        <div class="gallery-item">
+            <div class="like-button">
+                <i class="far fa-heart"></i>
+            </div>
+            <div class="download-button">
+                <i class="fas fa-download"></i>
+            </div>
+            <img src="bheem3.jpeg" alt="Art image">
+            <div class="overlay">
+                <h3>Chhota Bheem</h3>
+                
+            </div>
+        </div>
+    </div>
+    <div id="imageModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</body>
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const galleryitems = document.querySelectorAll('.gallery-item');
+        
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            galleryItems.forEach(item => {
+                const title = item.querySelector('h3').textContent.toLowerCase();
+                const description = item.querySelector('p') ? 
+                    item.querySelector('p').textContent.toLowerCase() : '';
+                const alt = item.querySelector('img').getAttribute('alt').toLowerCase();
+                
+                if (title.includes(query) || description.includes(query) || alt.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const closeModal = document.querySelector('.close-modal');
+        const galleryImages = document.querySelectorAll('.gallery-item img');
+        
+        galleryImages.forEach(img => {
+            img.addEventListener('click', function() {
+                modal.style.display = 'flex';
+                modalImg.src = this.src;
+            });
+        });
+        
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        
+        const likeButtons = document.querySelectorAll('.like-button');
+        
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                this.classList.toggle('active');
+                
+                const icon = this.querySelector('i');
+                if (this.classList.contains('active')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+            });
+        });
+
+        
+        const downloadButtons = document.querySelectorAll('.download-button');
+        
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                
+               
+                const imgSrc = this.parentElement.querySelector('img').src;
+                const imgName = imgSrc.split('/').pop();
+                
+               
+                const link = document.createElement('a');
+                link.href = imgSrc;
+                link.download = imgName;
+                
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+
+        
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const galleryItems = document.querySelectorAll('.gallery-item');
+
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                
+               
+                this.classList.add('active');
+                
+                const category = this.getAttribute('data-category').toLowerCase();
+                
+                galleryItems.forEach(item => {
+                    const title = item.querySelector('h3').textContent.toLowerCase();
+                    const description = item.querySelector('p') ? 
+                        item.querySelector('p').textContent.toLowerCase() : '';
+                    const alt = item.querySelector('img').getAttribute('alt').toLowerCase();
+                    const src = item.querySelector('img').getAttribute('src').toLowerCase();
+                    
+                   
+                    const srcContainsCategory = src.includes(category);
+                    
+                    if (category === 'all' || 
+                        title.includes(category) || 
+                        description.includes(category) || 
+                        alt.includes(category) ||
+                        srcContainsCategory) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
